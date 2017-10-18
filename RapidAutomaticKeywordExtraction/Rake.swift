@@ -9,7 +9,7 @@
 // will separate keywords, hereby refered to as stopwords.
 // you then remove all instances of stopwords from the text, and tokenize based on what comes between them.
 // This provides the list of keywords that appear in the text.
-// A
+//
 
 import Foundation
 
@@ -41,6 +41,13 @@ func importStopWords(stopWordFile: String) -> [String] {
     return stopWords
 }
 
+
+// Tokenize words.
+// Currently uses regex to find non-words, replaces, and tokenizes between them
+// WILL NOT SUPPORT all languages, mainly dialects who dont use whitespace
+// Pre: Input text and minimum word size
+// Post: Output separated words in an array
+//
 //Maybe rewrite using NSLinguisticTagger
 func separateWords(text : String, minWordSize : Int) -> [String] {
     let rePattern = "[^a-zA-Z0-9_\\+\\-/]+"
@@ -57,14 +64,21 @@ func separateWords(text : String, minWordSize : Int) -> [String] {
     return words
 }
 
+// Split text into sentences
 func splitSentences(text: String) -> [String] {
         var sentences = [String]()
+        // enumerateSubstrings provides a built in method to split up a string into its components
+        // By using the .bySentences option we are able to get closure in which we can append each
+        // sentence to our return array
         text.enumerateSubstrings(in: text.startIndex..<text.endIndex, options: .bySentences, { substring, substringRange, enclosingRange, stop in
             sentences.append(substring!)
         })
         return sentences
 }
 
+// Pre: Input a string array consisting of the chosen stopwords
+// Post: Outputs a string consisting of a constructed regex pattern
+// to find all stopWords
 func buildStopWordRegex(stopWords : [String]) -> String {
     var stopWordRegexList = [String]()
     var wordRegex = ""
@@ -75,27 +89,29 @@ func buildStopWordRegex(stopWords : [String]) -> String {
     return stopWordRegexList.joined(separator: " | ")
 }
 
+
+// Separates tokens based on where the occurances of stopwords are.
+// Removes stopwords and splits inbetween
+// Pre: Input a string array of sentences, and the stopword RegexPattern
+// Post: Output a String Array consisting of keywords for the passage
 func generateCandidateKeywords(sentenceList: [String], stopwordRegexPattern : String) -> [String]{
     var phraseList = [String]()
     let regEx = try! NSRegularExpression(pattern: stopwordRegexPattern, options: .caseInsensitive)
-    print(sentenceList)
     for sentence in sentenceList {
         let newSentence = regEx.stringByReplacingMatches(in: sentence, options: [], range: NSRange(location: 0, length: sentence.characters.count), withTemplate: " | ")
-        print(newSentence)
-        let words = newSentence.components(separatedBy:  "|")
+        let words = newSentence.components(separatedBy:  " | ")
         for word in words {
             if word != "" && word != " " {
-                print(word)
                 phraseList.append(word)
             }
         }
     }
-    print(phraseList)
     return phraseList
 }
 
 
 // Calculate word scores for input tokens
+// These scores are used to give a value to each keyword
 // Pre: Tokenized list of keywords
 // Post: Value of each word
 func calculateWordScores(phraseList:[String]) -> Dictionary<String, Double> {
@@ -105,7 +121,7 @@ func calculateWordScores(phraseList:[String]) -> Dictionary<String, Double> {
         let wordList = separateWords(text: phrase, minWordSize: 0) // split phrase. Use separateWords to avoid iterating through chars
         let wordListDegree = Double(wordList.count - 1) // Number of Words in keyword
         for word in wordList {
-            print("This word in phraseList is \(word)")
+            //print("This word in phraseList is \(word)")
             if wordFrequency[word] == nil{
                 wordFrequency.updateValue(0.0, forKey: word)
             }
@@ -116,7 +132,6 @@ func calculateWordScores(phraseList:[String]) -> Dictionary<String, Double> {
             wordDegree.updateValue(wordDegree[word]! + wordListDegree, forKey: word)
         }
     }
-    
     for (key, value) in wordFrequency {
         wordDegree.updateValue(wordDegree[key]! + value, forKey: key)
     }
@@ -127,11 +142,15 @@ func calculateWordScores(phraseList:[String]) -> Dictionary<String, Double> {
             wordScore.updateValue(0.0, forKey: key)
         }
         wordScore.updateValue(wordDegree[key]! / value * 1.0, forKey: key)
-        print("updating WordScore for \(key) with value \(wordDegree[key]! / value * 1.0)")
+        //print("updating WordScore for \(key) with value \(wordDegree[key]! / value * 1.0)")
     }
     return wordScore
 }
 
+
+// Assign scores to keywords
+// Pre: Have string array consisting of keywords, and a wordScore Dict consisting of scores for the different words that occur in the keywords
+// Post: Dict consisting of keywords, and the scores associated to them
 func generateCandidateKeywordScores(phraseList: [String], wordScore: Dictionary<String, Double>) -> Dictionary<String, Double> {
     var keywordCandidates = Dictionary<String, Double>()
     for phrase in phraseList {
@@ -173,7 +192,6 @@ let scoreDict =  hello.run(text: text)
 var maxKey = ""
 var max = 0.0
 for (key, value) in scoreDict {
-    print(key)
     if value != 0.0 {
         //print("key \"\(key)\" has a value of \(value)")
         if value > max {
