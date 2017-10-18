@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		04828D381F94991700DB9571 /* Rake.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04828D371F94991700DB9571 /* Rake.swift */; };
+		04B0DCB51F958C3700626B93 /* classifyNL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B0DCB41F958C3700626B93 /* classifyNL.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -26,6 +27,7 @@
 		04828D341F94991700DB9571 /* RapidAutomaticKeywordExtraction */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = RapidAutomaticKeywordExtraction; sourceTree = BUILT_PRODUCTS_DIR; };
 		04828D371F94991700DB9571 /* Rake.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rake.swift; sourceTree = "<group>"; };
 		04828D401F957F2300DB9571 /* csvStopList.csv */ = {isa = PBXFileReference; lastKnownFileType = text; name = csvStopList.csv; path = ../csvStopList.csv; sourceTree = "<group>"; };
+		04B0DCB41F958C3700626B93 /* classifyNL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = classifyNL.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +62,7 @@
 			children = (
 				04828D401F957F2300DB9571 /* csvStopList.csv */,
 				04828D371F94991700DB9571 /* Rake.swift */,
+				04B0DCB41F958C3700626B93 /* classifyNL.swift */,
 			);
 			path = RapidAutomaticKeywordExtraction;
 			sourceTree = "<group>";
@@ -123,6 +126,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				04828D381F94991700DB9571 /* Rake.swift in Sources */,
+				04B0DCB51F958C3700626B93 /* classifyNL.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -5,28 +5,26 @@
 // Text Mining: Applications and Theory (2010): 1-20.
 //
 //
-//
-//
-//
+// This keyword extraction algorithm works by identifying parts of speech which typically
+// will separate keywords, hereby refered to as stopwords.
+// you then remove all instances of stopwords from the text, and tokenize based on what comes between them.
+// This provides the list of keywords that appear in the text.
+// A
 
 import Foundation
 
 
 //MARK: EXTENSIONS
 extension String {
-    func substring(withRange: Range<String.Index>) -> String {
-        return String(self[withRange])
-    }
     func substring(range: NSRange) -> String {
         let botIndex = self.index(self.startIndex, offsetBy: range.location)
         let newRange = botIndex..<self.index(botIndex, offsetBy: range.length)
-        return substring(withRange: newRange)
-    }
+        return String(self[newRange])
+   }
 }
 
 
 func isNumber(s: String) -> Bool {
-    //print("Calling isNumber on \(s)")
     if let _ = Float(s) {
         return true
     } else if let _ = Int(s){
@@ -35,6 +33,7 @@ func isNumber(s: String) -> Bool {
     return false
 }
 
+//Import a stopWord csv
 func importStopWords(stopWordFile: String) -> [String] {
     var stopWords = [String]()
     let text2 = try? String(contentsOfFile: stopWordFile)
@@ -42,18 +41,19 @@ func importStopWords(stopWordFile: String) -> [String] {
     return stopWords
 }
 
+//Maybe rewrite using NSLinguisticTagger
 func separateWords(text : String, minWordSize : Int) -> [String] {
-    let rePattern = "[^a-zA-Z0-9_\\+\\-/]"
+    let rePattern = "[^a-zA-Z0-9_\\+\\-/]+"
     var words = [String]()
     let regEx = try! NSRegularExpression(pattern: rePattern, options: [])
-    let matches = regEx.matches(in: text, options: [], range: NSRange(location: 0, length: text.characters.count))
-    
-    for match in matches {
-        let currentWord = text.substring(range: match.range)
-        if currentWord.characters.count > minWordSize && currentWord != "" && isNumber(s: currentWord) == false {
-            words.append(currentWord)
+    let newSentence = regEx.stringByReplacingMatches(in: text, options: [], range: NSRange(location: 0, length: text.characters.count), withTemplate: " | ")
+    let newWords = newSentence.components(separatedBy:  " | ")
+    for word in newWords {
+        if word.characters.count > minWordSize && word != " " && isNumber(s: word) == false {
+            words.append(word)
         }
     }
+    //print("separateWords turned \(text) into \(words)")
     return words
 }
 
@@ -80,7 +80,7 @@ func generateCandidateKeywords(sentenceList: [String], stopwordRegexPattern : St
     let regEx = try! NSRegularExpression(pattern: stopwordRegexPattern, options: .caseInsensitive)
     print(sentenceList)
     for sentence in sentenceList {
-        let newSentence = regEx.stringByReplacingMatches(in: sentence, options: [], range: NSRange(location: 0, length: sentence.characters.count), withTemplate: " |")
+        let newSentence = regEx.stringByReplacingMatches(in: sentence, options: [], range: NSRange(location: 0, length: sentence.characters.count), withTemplate: " | ")
         print(newSentence)
         let words = newSentence.components(separatedBy:  "|")
         for word in words {
@@ -94,13 +94,18 @@ func generateCandidateKeywords(sentenceList: [String], stopwordRegexPattern : St
     return phraseList
 }
 
+
+// Calculate word scores for input tokens
+// Pre: Tokenized list of keywords
+// Post: Value of each word
 func calculateWordScores(phraseList:[String]) -> Dictionary<String, Double> {
-    var wordFrequency = Dictionary<String, Double>()
-    var wordDegree = Dictionary<String, Double>()
-    for phrase in phraseList {
-        let wordList = separateWords(text: phrase, minWordSize: 0)
-        let wordListDegree = Double(wordList.count - 1)
+    var wordFrequency = Dictionary<String, Double>() // Return Dict
+    var wordDegree = Dictionary<String, Double>() // Storage for individual word scores
+    for phrase in phraseList { // Can either be a single word, or a string of words that represents a keyword
+        let wordList = separateWords(text: phrase, minWordSize: 0) // split phrase. Use separateWords to avoid iterating through chars
+        let wordListDegree = Double(wordList.count - 1) // Number of Words in keyword
         for word in wordList {
+            print("This word in phraseList is \(word)")
             if wordFrequency[word] == nil{
                 wordFrequency.updateValue(0.0, forKey: word)
             }
