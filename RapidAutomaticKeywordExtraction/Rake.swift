@@ -12,6 +12,7 @@
 //
 
 import Foundation
+import Foundation.NSLinguisticTagger
 
 
 //MARK: EXTENSIONS
@@ -23,7 +24,7 @@ extension String {
    }
 }
 
-
+//Convert to NSLinguisticTagger
 func isNumber(s: String) -> Bool {
     if let _ = Float(s) {
         return true
@@ -48,7 +49,8 @@ func importStopWords(stopWordFile: String) -> [String] {
 // Pre: Input text and minimum word size
 // Post: Output separated words in an array
 //
-//Maybe rewrite using NSLinguisticTagger
+// Maybe rewrite using NSLinguisticTagger
+// Maybe not for this one...
 func separateWords(text : String, minWordSize : Int) -> [String] {
     let rePattern = "[^a-zA-Z0-9_\\+\\-/]+"
     var words = [String]()
@@ -65,15 +67,32 @@ func separateWords(text : String, minWordSize : Int) -> [String] {
 }
 
 // Split text into sentences
+
+
 func splitSentences(text: String) -> [String] {
-        var sentences = [String]()
+    var sentences = [String]()
+    // Update if NSLinguisticTagScheme can stop throwing bug
+    /*
+    let tagger = NSLinguisticTagger(tagSchemes: [ .tokenType], options: 0)
+    let options : NSLinguisticTagger.Options = [ .omitPunctuation, .omitWhitespace]
+    tagger.string = text
+    let range = NSRange(location: 0, length: text.utf16.count)
+    tagger.enumerateTags( in: range, unit: .sentence, scheme: .tokenType, options: options, using: { tag, tokenRange, stop in
+        let token = (text as NSString).substring(with: tokenRange)
+        sentences.append(token)
+    })
+        
+    } else {
+ */
+        // Fallback on earlier versions
         // enumerateSubstrings provides a built in method to split up a string into its components
         // By using the .bySentences option we are able to get closure in which we can append each
         // sentence to our return array
         text.enumerateSubstrings(in: text.startIndex..<text.endIndex, options: .bySentences, { substring, substringRange, enclosingRange, stop in
             sentences.append(substring!)
         })
-        return sentences
+    
+return sentences
 }
 
 // Pre: Input a string array consisting of the chosen stopwords

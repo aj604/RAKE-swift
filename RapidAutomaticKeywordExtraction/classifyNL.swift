@@ -8,10 +8,18 @@
 
 import Foundation
 
-func classifier(text: String, categories : Dictionary<String, Double>) -> Dictionary<String, Double> {
+//Classifier Func
+//
+// STEPS:
+// 1. Determine synset for categories ******************** HOW DO I DO THIS???????????????????
+// 2. Rake text for keywords // potentially for score
+// 3. Parse keywords for nouns, Discard rest
+// 4. For each category synset determine scores of all synonyms and append final to result dictionary
+/*func classifier(text: String, categories : Dictionary<String, Double>) -> Dictionary<String, Double> {
     var categoryList = [String]()
     var mapping = Dictionary<String, String>()
     for k in categories.keys {
         
     }
 }
+*/
