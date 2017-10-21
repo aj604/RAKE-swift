@@ -71,27 +71,26 @@ func separateWords(text : String, minWordSize : Int) -> [String] {
 
 func splitSentences(text: String) -> [String] {
     var sentences = [String]()
+    
     // Update if NSLinguisticTagScheme can stop throwing bug
-    /*
-    let tagger = NSLinguisticTagger(tagSchemes: [ .tokenType], options: 0)
-    let options : NSLinguisticTagger.Options = [ .omitPunctuation, .omitWhitespace]
-    tagger.string = text
-    let range = NSRange(location: 0, length: text.utf16.count)
-    tagger.enumerateTags( in: range, unit: .sentence, scheme: .tokenType, options: options, using: { tag, tokenRange, stop in
-        let token = (text as NSString).substring(with: tokenRange)
-        sentences.append(token)
-    })
-        
-    } else {
- */
+    if #available(macOS 10.13, *){
+        let tagSchemes : [NSLinguisticTagScheme] = [ .tokenType]
+        let tagger = NSLinguisticTagger(tagSchemes: tagSchemes, options: 0)
+        let options : NSLinguisticTagger.Options = [ .omitPunctuation, .omitWhitespace]
+        tagger.string = text
+        let range = NSRange(location: 0, length: text.utf16.count)
+        tagger.enumerateTags( in: range, unit: .sentence, scheme: .tokenType, options: options, using: { tag, tokenRange, stop in
+            let token = (text as NSString).substring(with: tokenRange)
+            sentences.append(token)
+        })
+    
+    } else { 
         // Fallback on earlier versions
-        // enumerateSubstrings provides a built in method to split up a string into its components
-        // By using the .bySentences option we are able to get closure in which we can append each
-        // sentence to our return array
+
         text.enumerateSubstrings(in: text.startIndex..<text.endIndex, options: .bySentences, { substring, substringRange, enclosingRange, stop in
             sentences.append(substring!)
         })
-    
+    }
 return sentences
 }
 
@@ -194,6 +193,7 @@ struct Rake {
         stopWordsPattern = buildStopWordRegex(stopWords: stopWords)
     }
     func run(text: String) -> Dictionary<String, Double> {
+        self.stopWords = importStopWords(stopWordFile: "csvStopList.csv")
         let sentenceList = splitSentences(text: text)
         let phraseList = generateCandidateKeywords(sentenceList: sentenceList, stopwordRegexPattern: stopWordsPattern)
         let wordScores = calculateWordScores(phraseList: phraseList)
@@ -201,6 +201,9 @@ struct Rake {
         return keywordCandidates
     }
 }
+
+
+
 print("Lets get started with RAKE!")
 var text = "For a whole day my companion had rambled about the room with his chin upon his chest and his brows knitted, charging and recharging his pipe with the strongest black tobacco, and absolutely deaf to any of my questions or remarks. "
 var stopWords = importStopWords(stopWordFile: "csvStopList.csv")
@@ -222,11 +225,6 @@ for (key, value) in scoreDict {
     }
 }
 print("The leading interest of this text was \(maxKey), with a value of \(max)")
-
-
-
-
-
 
 
 

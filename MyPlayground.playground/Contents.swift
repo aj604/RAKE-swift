@@ -2,7 +2,6 @@
 
 import Foundation
 
-
 let tagger = NSLinguisticTagger(tagSchemes: [.lexicalClass, .tokenType, .lemma], options: 0)
 let options: NSLinguisticTagger.Options = [ .omitPunctuation, .omitWhitespace]
 let text = "For a whole day my companion had rambled about the room with his chin upon his chest and his brows knitted, charging and recharging his pipe with the strongest black tobacco, and absolutely deaf to any of my questions or remarks.  "
