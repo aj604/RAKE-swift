@@ -60,7 +60,7 @@ func classifier(text: String, categories : Dictionary<String, Double>) -> Dictio
 }
 
 
-
+// This function can be a C function, using wordnet API
 func calculateWordDistance(from: String, to: String) -> Double {
     return 4.0
 }
@@ -69,6 +69,7 @@ func calculateWordDistance(from: String, to: String) -> Double {
 //
 // STEPS:
 // 1. Determine synset for categories ******************** HOW DO I DO THIS???????????????????
+//      Implement C API of wordnet
 // 2. Rake text for keywords // potentially for score
 // 3. Parse keywords for nouns, Discard rest
 // 4. For each category synset determine scores of all synonyms and append final to result dictionary
