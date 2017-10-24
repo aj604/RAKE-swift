@@ -22,9 +22,14 @@ def classify(word, categories):
     #track which category each synonym is for
 	for k in categories.keys():
 		syn_k = wordnet.synsets(k, pos=wordnet.NOUN)
+		#category_list.append(syn_k[0])
+		#mapping[syn_k[0].name()] = k
 		for syn in syn_k:
-			category_list.append(syn)
-			mapping[syn.name()] = k
+			ii = 0
+			while ii < 3:
+				category_list.append(syn)
+				mapping[syn.name()] = k
+				ii += 1
 
 	res = categories
 	#create new dict to store count of appeared synonyms
@@ -43,9 +48,9 @@ def classify(word, categories):
 			for c in category_list:
 				name = mapping[c.name()]
 				similarity = synset.path_similarity(c, simulate_root=False)
-				if similarity != None:
+				if similarity != None and similarity > 0.15:
 					synCount[name] += 1.0
-					res[name] += (res.get(name, 0) + similarity) / synCount[name]
+					res[name] += similarity / synCount[name]
 			for key in synCount.keys():
 				#print( res.get(key, 0), key, synCount[key])
 			#	res[key] = res.get(key, 0) / synCount[key]
@@ -54,25 +59,35 @@ def classify(word, categories):
 	return res
 
 def normalizeScore(categories):
-	print(type(categories))
 	total = 0
 	for key, value in categories.items():
 		total += value
+	if total == 0: 
+		return categories
 	for keyword, value in categories.items():
 		categories[keyword] = value / total
 	return categories
 
 categories = {
-	'sports' : 0.0,
 	'food' : 0.0,
 	'entertainment' : 0.0,
-	'electronics' : 0.0
+	'society' : 0.0,
+	'travel' : 0.0,
+	'dining' : 0.0
 	}
 
 score = {}
 for key in categories.keys():
 	score[key] = 0.0
-text = "Mcdonalds | Gym | Play | laptop"
+text = """
+The UK is among the world’s “best-value destinations” to visit in 2018, according to travel guide publisher Lonely Planet, which has released its annual Best in Travel hotlist.
+
+Chosen by its editors, authors and a network of travel experts around the world, the list highlights the top 10 countries, cities, regions and best-value destinations for travellers to visit in the year ahead.
+
+Pointing to the fact that the pound has weakened against “pretty much all currencies” since the Brexit referendum, the UK has now been ranked seventh on the best-value list, along with Poland and La Paz, Bolivia. The number one spot in this category goes to Tallinn, capital of Estonia – a long-time budget city break favourite.
+
+
+"""
 r = Rake()
 r.extract_keywords_from_text(text)
 keywords = r.get_ranked_phrases_with_scores()
